@@ -1,0 +1,140 @@
+\documentclass[11pt, a4paper]{article}
+% One of the following is required: problemset, recitation, quiz, exam
+% The following are required: handoutnum, assigneddate.
+% If there is only one date, set both duedate and assigneddate to be the same.
+% Do not change handoutnum or dates
+\usepackage[
+problemset,
+handoutnum=4,
+assigneddate={19 October 2021},duedate={29 October 2021},
+% % Uncomment the line below IF these are solutions
+solution,
+% % Uncomment the line below IF you are a student submitting solutions
+student,
+% % Replace with your name
+name={Neel Bhalla},
+% Replace with names of all group members who collarborated on this.
+% If unsure about ordering, then you can follow the convention in theory
+% and list names alphabetically by last name.
+groupmembers={Agnes Shan, Sammuel Lyon}
+]{course-handouts-preamble}
+
+% Be careful of commas and put text with spaces within {curly braces}
+% Don't use a comma at the end, but do use commas between options.
+% Weird errors occur otherwise, I wasted some time failing to debug those.
+% DO NOT EDIT
+% These are fixed values that should not be changed during this course.
+\pgfkeys{/chp/fixed/.cd,
+instructorname = {Ravi Sundaram},
+coursename = {CS5800 Algorithms}}
+
+% Add any macros you want below, or put them in a separate file and \input{file}
+% keeping the preamble clean can keep you sane.
+\newcommand{\tab}[1]{\hspace{.2\textwidth}\rlap{#1}}
+
+\begin{document}
+% Do not change either of the below lines.
+
+\insertHandoutInfoBox{}
+\ifbool{isexam}{\input{exam-blurb}} %comment this line only if it throws an error.
+
+% Start adding content from below here.
+
+\section*{Dynamic Programming Solution Guidelines}
+Dynamic programming can be very tricky and this template will help guide you through solving new problems. Get in the habit of going through the list and filling everything out step by step. We will grade harshly on missing items. And if there's no english description of the two items mentioned below then the solution will get an $\textbf{AUTOMATIC}$ $\textbf{0}$ on homeworks and exams with no exceptions.
+\begin{enumerate}
+\item ($\textbf{AUTOMATIC}$ $\textbf{0}$ $\textbf{IF}$ $\textbf{MISSING}$) English description of the
+  \begin{enumerate}
+  \item recursion you use/the memoization table.
+  \item logic behind your recursion.
+  \end{enumerate}
+\item The actual recursion. And don't forget the base cases!
+\item Final value we have to return.
+\item Brief description of how an iterative algorithm would loop through the memoization array and fill the values (make sure your order makes sense, and that values are already filled when you call them). Pseudocode isn't required, just a couple sentences.
+\item The number of subproblems you have to solve.
+\item How much time each subproblem takes to solve (usually constant or linear).
+\item Final running time.
+\end{enumerate}
+
+
+\newproblem{Alice and Bob and Alternating Games}{25}
+Suppose Alice and Bob are given an array $A[1...n]$ of integers. They are playing a game where they alternate turns, and at each turn a player chooses one of the two integers at the end of the array. After they choose that number, the number gets deleted from the array and it's the next person's turn. The winner of the game is the one who has the larger sum from the numbers they have chosen. Give a dynamic programming solution for Alice to \textit{maximize the sum of the integers she chooses}, assuming that Bob plays optimally.
+
+For example, suppose we have the array $A = [8, 7, 8, 9]$.  Alice can choose 9 in the first turn. Then we have the array $[8, 7, 8]$ and Bob can choose either 8. Then Alice has a choice between picking 7 and 8 so she chooses 8 which leaves Bob with 7. Alternatively, if Alice had initially chosen 8, then Bob would have chosen the 9 and Alice would choose the remaining 8. Thus, for this specific configuration, with optimal play, Alice and Bob will both have the same totals.
+
+Solution: \\ \\
+Let the "score" of a game be sum(alice)-sum(bob) numbers chosen at any game point.  Therefore alice wins iff score$ > 0$ and bob wins if score $ < 0$.  Observe that sum(alice + bob) constant for any game state, thus alice will maximize her own sum iff she maximizes the score of the game.  \\ \\
+\textbf{1.} Since we can only take from the left or right, every gamestate can be parametrized by L, R, $L \leq R$), turn where A[L:R] is the subarray left to choose from, and turn corresponds to 0 for alice, and 1 for bob.  \\ \\
+It follows that opt[L][R][0] is comprised of either choosing A[L] or A[R] to maximize the total score given that Bob plays optimally(minimizing opt[L+1][R][1] and opt[L+1][R-1][1] for himself).  \\ 
+Similarily, opt[L][R][1] is comprised of either choosing A[L] or A[R] to minimize the total score given that Alice will play optimally too(maximizing opt[L+1][R][1] and opt[L+1][R-1][1] for herself). \\ \\
+\textbf{2.} Recursion.  Let opt[L][R][0] be the maximal obtainable score on board A[L:R] when Alice gets to go first. \\ \\ Either $L = R = c$, in which 
+$$opt_{c,c,0} = A[L]$$
+or $L < R$, in which
+$$opt_{L,R,0} = \max{(A[L] + opt_{L+1, R, 1}, A[R] + opt_{L, R-1, 1})}$$ \\ 
+Similarily, Let opt[L][R][1] be the minimal obtainable score on board A[L:R] when Bob gets to go first.
+Either $L = R = c$, in which 
+$$opt_{c,c,1} = -A[L]$$
+or $L < R$, in which
+$$opt_{L,R,1} = \min{(opt_{L+1, R, 0}-A[L], opt_{L, R-1, 1}-A[R])}$$ \\ 
+\textbf{3.} Value to Return: \\ If we want to know who will win for the original board given that alice goes first, it suffices to return sign(OPT[1][N][0]). \\ \\
+If we want to know the sum of alice's pile in optimal play, observe score = sum(alice)-sum(bob), thus score + sum(alice + bob) = sum(alice)-sum(bob) + sum(alice)+sum(bob) = 2sum(alice). \\ It follows that sum(alice) = $\frac{1}{2}$ * (opt[1][N][0] + sum(A[1:N])). \\ \\
+\textbf{4.} Iteration technique: \\ Let $k = L-R$ for any given subproblem.  It follows that the recursion depends upon successively smaller values of $k$ (since a player must take exactly 1 numeber per turn).  It suffices to compute all the answers for a given $k$, and then compute all the answers for $k+1$, and so on $\cdots$. \\ \\
+for k=0 to $N-1$ \\ 
+   for j=1 to $N-i$ \\
+        compute dp[j][j+k][0] and dp[j][j+k][1]
+return score or who wins (detailed above). \\ \\
+\textbf{5-7.} There are $\theta(n^2)$ states in the dp problem, with 2 subproblems per problem to maximize over( constant $\theta(1)$ time to coalesce), thus the full running time of the algorithm is $\theta(n^2)$
+\newproblem{Ternary Tree Track Totals}{25}
+A ternary tree a rooted tree where each node (except the leaves) have three children each. We are given a ternary tree $T$ with a positive integer label on each node of the tree. Further, you are given that the tree has $k$ levels such that at level $i\in\set{2, \dots, k}$, there are $3^{i-1}$ nodes since every node at level $i-1$ has 3 children each and one node at the root.
+
+You want to find the maximum path sum starting at the root of the tree and following any path on the tree from root to a leaf. From every node in your path, except the terminal leaf node, you have three options for which child to use for your path.
+\\ \\
+\textbf{1.} Let us memorize the largest path-sum from a node $i$ to any leaf in its rooted subtree.  Either $i$ is a leaf in which its node value is the path sum, or the answer will be the node values + choosing max paths of left, middle, or right child. \\ \\
+\textbf{2.} Let $opt_{i}$ be the largest path-sum from node $i$ to any leef in rooted tree $i$. Let the weight of node $i$ be $A_i$ \\ \\
+Either $i$ is a child:
+$$opt_i = A_i$$
+Or $i$ is a node (assume its children are $3i$, $3i+1$, and $3i+2$): 
+$$opt_i = A_i + max(opt_{3i}, opt_{3i+1}, opt_{3i+2})$$
+\textbf{3.} We want the max subpath from the root to any leaf, thus assuming the root is $0$, we would return $opt_0$. \\ \\
+\textbf{4.} Iteration technique: \\ The recurrence is strictly defined on its subproblems which deal with subtrees, ie roots at the level below.  It suffices to compute the answers to the level below, and solve problems from the lowest level to the top. \\ \\
+
+for $k = $ depth$, \cdots, 1$ \\ 
+    for node in level($k$) \\
+        compute path for node \\
+return opt(0)
+\\ \\
+\textbf{5-7}: A complete ternary tree with $k$ levels has $\sum_{i=0}^{k-1} 3^i = O(3^k)$ nodes.  Each node requires us to look at 3 children, whose answers are queryable in $O(1)$.  Finally the merge between the three is a 3-way max which is $O(1)$, thus the runtime of this algorithm is $O(3^k)$ where k is the level of the tree.
+
+\newproblem{Counting Coin Changes}{25}
+Given a denomination of positive coins $c_1, c_2, \dots, c_m$ and a value $n$ as input how many ways can you make change for $n$. For example, with coins being $\{1, 2, 3\}$ the number of ways to get the value $4$ is 4 as follows: $\{1, 1, 1, 1\}, \{1, 1, 2\}, \{2, 2\}, \{3, 1\}$. With coins being $\{2, 5, 3, 6\}$ the number of ways to get the value $10$ is 5 as follows: $\{2, 2, 2, 2, 2\}, \{2, 2, 3, 3\}, \{2, 2, 6\}, \{2, 3, 5\}, \{5, 5\}$.
+
+\textbf{1.} Let us memorize number of ways to construct $v$ using coins $c_1, \cdots, c_m$.  We can express this as the sum of the number of ways to construct $v$. At any given value $v$ with coins $c_1, \cdots, c_m$, we can either add a preexisting coin $c_m$ to groups $v-c_m$, or we use construct v from $c_1, \cdots c_{m-1}$ coins. \\
+\textbf{2.} Let $opt_{v,i}$ be the number of ways to construct value $v$ from coins $c_1, c_2, \cdots, c_m$.  \\ \\
+Observe $opt_{0, i} = 1$ forall $i$ as we can pick no coins.  \\ \\
+Secondly observe $opt_{v, i}$ for $v < 0$ is 0 as there is no way to make a negative number. \\ \\
+Now Either $i=1$ in which 
+$$opt_{v,1} = opt_{v-c_1,1}$$
+or $i > 1$ in which
+$$opt_{v,i} = opt_{v-c_i, i} + opt_{v, i-1}$$
+\textbf{3.} We want the number of ways to make $n$ with $c_1, \cdots, c_m$, thus we need $opt[n][m]$. \\
+\textbf{4.} Iteration technique: Observe $opt[v][i]$ only depends on $opt[v][i-1]$ and $opt[v-c_i][i]$, so it is sufficent to compute all the answers for $c_1, \cdots, c_i$ before computing the answer for up to $i+1$ coins.  Secondly within a row of values, we should compute left to right, by increasing value. \\ \\
+
+initialize dp[0,i] to 1 for all i
+
+
+for $k = 1 \to m$ \\
+ for $v = 1 \to n$ \\
+    if (k == 1 and $v-c_1<0$) \\
+        dp[v, k] = 0\\ 
+    else if (k == 1 and $v-c_1 >= 0$ \\
+        dp[v,k] = dp[$v-c_1$,k]\\
+    else if ($k > 1$ and $v-c_k < 0$)\\
+        dp[v, k] = dp[v, k-1]\\
+    else\\
+        dp[v,k] = dp[$v$,$k-1$] + dp[$v-c_k$,k]\\
+
+\textbf{5-7.} Number of states: there are $O(nm)$ states that need to be calcualted (cross product of values and coins).  Each problem has 2 subproblems: adding $c_m$ or only using $m-1$ coins.  Finally, each problem is a $O(1)$ lookup which are summed yielding $O(1)$ transition time per state.  It follows that the runtime of the algorithm is $O(nm)$
+\newproblem{Programming: Dwarf Dormitories}{25}
+Hackerrank id: \textbf{neelbhallabos} \\ 
+Done with Agnes Shan and Sam Lyon.
+\end{document}

@@ -1,0 +1,133 @@
+\documentclass[11pt, a4paper]{article}
+
+% One of the following is required: problemset, recitation, quiz, exam
+% The following are required: handoutnum, assigneddate.
+% If there is only one date, set both duedate and assigneddate to be the same.
+% Do not change handoutnum or dates
+\usepackage[
+problemset,
+handoutnum=3,
+assigneddate={5 October 2021},duedate={15 October 2021},
+% % Uncomment the line below IF these are solutions
+% solution,
+% % Uncomment the line below IF you are a student submitting solutions
+% student,
+% % Replace with your name
+name={Fill Submitter's Name},
+% Replace with names of all group members who collarborated on this.
+% If unsure about ordering, then you can follow the convention in theory
+% and list names alphabetically by last name.
+groupmembers={Fill collaborators' names}
+]{course-handouts-preamble}
+
+% Be careful of commas and put text with spaces within {curly braces}
+% Don't use a comma at the end, but do use commas between options.
+% Weird errors occur otherwise, I wasted some time failing to debug those.
+% DO NOT EDIT
+% These are fixed values that should not be changed during this course.
+\pgfkeys{/chp/fixed/.cd,
+instructorname = {Ravi Sundaram},
+coursename = {CS5800 Algorithms}}
+
+% Add any macros you want below, or put them in a separate file and \input{file}
+% keeping the preamble clean can keep you sane.
+
+\begin{document}
+% Do not change either of the below lines.
+\insertHandoutInfoBox{}
+\ifbool{isexam}{\input{exam-blurb}} %comment this line only if it throws an error.
+
+% Start adding content from below here.
+
+
+\newproblem{Greedy Coins}{10+5}
+\begin{enumerate}
+\item Recall the change-making algorithm from lecture. Suppose that the available coins are in the denominations that are powers of $c$, i.e., $c^0, c^1,\dots,c^k$ for some integers $k > 0$, $c > 1$. Prove that the greedy algorithm always yields an optimal solution.\\ \\ 
+Let us denote  $(n_0, n_1, n_2, \ldots, n_k)$ as a solution to the change making problem for $c^0, c^1,\dots,c^k$. \\ \\
+Claim \textbf{1}: In an optimal solution, $\forall i, 0 \leq i < k$, $0 \leq n_i \leq c-1$. \\ \\
+\textbf{proof by contradiction}: Assume there exists an optimal combination $(n_0, n_1, n_2, \ldots, n_k)$ with $n_i \geq c$ for some $0 \leq i < k$. We can then construct a new solution by removing $c$ of the $c^i$ coin, and replacing it with $c^{i+1}$.  The number of coins in the new solution has dropped by $c-1$, but is still valid, hence the original solution is not optimal,  a contradiction. \\ \\
+
+\textbf{Claim 2}: The greedy solution produces the optimal number of coins for every value.  \\ \\
+\textbf{proof by contradiction}: Suppose there exists a new solution ($q_0$, $q_1$, $q_2$, $q_3$, $\ldots$ $q_k$) which is optimal and different from ($n_0$, $n_1$, $n_2$, $n_3$, $\ldots$, $n_k$). \\ \\
+Let $t$ be the largest index where $q_t \neq n_t$.   Since all $i > t$, $q_i = n_i$, we will now consider the combinations ($q_0$, $q_1$, $q_2$, $q_3$, $\ldots$ $q_i$) and ($n_0$, $n_1$, $n_2$, $n_3$, $\ldots$ $n_i$) \\ \\
+Since the greedy algorithm maximizes $n_i$ in descending order, it is clear that $n_t > q_t$ as this is the first contradiction.\\ \\
+\textbf{Assume that} both values add up to some $K$. (We cut off equal amounts from both piles, thus they were equal originaly iff they are equal now.) \\ \\
+Finally observe that by \textbf{Claim 1}, $\forall i < t , 0 \leq n_i, q_i \leq c-1$. \\ \\
+
+We will now look at the monetary value of ($q_0$, $q_1$, $q_2$, $\ldots$, $q_{t-1}$).  Observe by claim 1: 
+$$\sum_{i=0}^{t-1}q_ic^i \leq \sum_{i=0}^{t-1}(c-1)c^i$$
+which using geometric series is
+$$\leq (c-1)\frac{c^{t}-1}{(c-1)} = c^{t}-1$$
+$$ < c^{t}$$
+Finally observe that $q_t < n_t$, hence $$q_tc^t + c^t \leq n_tc^t$$
+Putting it all together, recall
+$$\sum_{i=0}^{t}q_ic^i = \sum_{i=0}^{t-1}q_ic^i + q_tc^t$$
+But above, we bounded the summation by $c^{t}$, hence
+$$\sum_{i=0}^{t}q_ic^i < c^t + q_tc^t$$
+and by our last observation
+$$\sum_{i=0}^{t}q_ic^i < n_tc^t$$
+Hence, q pile cannot be of same value as the n pile, a \textbf{contradiction}. \textbf{qed}. \\  
+ 
+\item Give a set of coin denominations for which the greedy algorithm does not give an optimal solution. Your set should include a penny so there's a solution for every change amount $n$. \\ \\
+Coin denominations: $1, 4, 5$ \\ \\
+Observe greedy for $n=8$ will produce $\{5, 1, 1, 1\}$, but the optimal solution is $\{4, 4\}$, hence greedy is incorrect.
+\end{enumerate}
+
+
+
+\newproblem{Super or normal}{25}
+You have one supercomputer and $n$ normal computers on which you need to run $n$ jobs. Each job $i$ first spends $s_i$ time on the supercomputer and then $n_i$ time on the normal computer. A job can only start running on any of the normal computers after it has finished on the supercomputer. However, as soon as any job finishes on the supercomputer, it can immediately start on one of the free normal computers.
+The goal is to finish running all the jobs as soon as possible. Note that since there is only one supercomputer, you'll always have to wait $\sum_{i=1}^{i=n} s_i$ time so that the jobs finish running on the supercomputer. However, you can optimize when you run the jobs on the normal computers to try to finish running all the jobs as soon as possible.
+Show the following schedule is optimal: execute jobs after sorting them in \textit{decreasing order} by $n_i$.\\ \\
+
+\textbf{Claim 1}: Given a solution (($s_0$,$n_0$), $(s_1, n_1)$, $\ldots$, ($s_n$, $n_n$)) with an $i$ such that $n_i < n_{i+1}$, the time to process is at least as much as if tasks $i+1$ and $i$ were swapped. \\ \\
+\textbf{Proof}: We can ignore all tasks prior to $i$, since they will take equal amounts of time in both solutions. In the first case task $i$ takes $s_i + n_i$ time and $i+1$ takes $s_{i} + s_{i+1} + n_{i+1}$.  Since $n_i < n_{i+1}$, $s_{i} + n_i <  \boxed{s_{i} + s_{i+1} + n_{i+1}}$, which is our total time to complete tasks i and i+1. \\ \\
+
+Finally, if we swap tasks $i$ and $i+1$, observe that task $i+1$ will take $s_{i+1} + n_{i+1}$ time and task $i$ will take $s_{i+1} + s_{i}+n_{i}$ time. \\ \\
+But since $n_{i} < n_{i+1}$, observe
+that either the swapped task ($i+1$) will take longer
+$$s_{i+1} + n_{i+1} \leq s_{i} + s_{i+1} + n_{i+1}$$
+Or the original task $i$ will take longer (due to supercomputer tasking)
+$$s_{i+1} + s_{i}+n_{i} < s_i + s_{i+1} + n_{i+1}$$
+Hence in either case, swapping tasks $i$ and $i+1$ take at most as much time as the orignial solution. \\ \\
+Finally observe that in both cases the super computer takes $s_{i} + s_{i+1}$ time, thus the super computer will start processing task $s_{i+2}$ at the same time in both cases. \\ \\
+
+\textbf{Claim 2}: Every optimal solution runs in exactly as much time as running tasks in decreasing normal time order. (Exchange argument)  \\ \\
+\textbf{Proof}: Due to \textbf{Claim 1}, every pair of adjacent tasks with $n_i < n_{i+1}$ can be swapped to produce a solution with time $\leq$ the original.  Given an optimal solution, it follows that every substution/swap will create an equivalent solution which is processed in the same time.  After processing all possible substitutions, it follows that the solution will be sorted in decreasing order as 
+$$n_0 \geq n_1 \geq n_2 \geq \cdots \geq n_n$$
+
+\newproblem{Distinct Edge Weights and MSTs}{10+10+10}
+Assume that all the weights in the undirected graph $G$ are unique (no two edge weights are the same). Prove the following, or provide a counter example.
+\begin{enumerate}[label=\alph*.]
+\item The MST is unique. \\ 
+\textbf{proof by contradiction}: 
+Consider two MST's $T_1$ and $T_2$ which are not the same but sum up to the same value.  \\ \\
+Consider the cheapest edge $E_1$ that is only in one of them (call this mst $T_1$, and the other $T_2$). \\ 
+Next, we can consider a cut of $T_2$ which parititons the edge $E_1$ into two different sets. \\ \\
+Since $E_1 \not \in T_2$, $\exists E^* \in T_2$ such that $E^*$ sits in between the cut to connect the two sides and $E^* \not \in T_1$. \\ \\
+By adding $E_1$ to $T_2$, we construct a cycle between the two endpoints of $E_1$: once through the edge $E_1$, and secondly through the path that is a subset of $T_2$.  \\ \\ 
+Since there is a cycle, some edge  on the cycle is in $T_2$ but not in $T_1$ (else $T_1$ would have a cycle).  Since the \textbf{cheapest edge} not in both is $E_1$, which is only in $T_1$, it follows that:
+\begin{enumerate}
+    \item $\forall$ edges $a$ in cycle that are $\not \in T_1$, $a > E_1$.
+    \item There exists an edge $e \in $ cycle such that $e \in T_2$, but $e \not \in T_1$
+    \item by (a) and (b),there exists a heaviest edge $E_2 > E_1$ in the cycle which belongs to $T_2$ 
+\end{enumerate}
+
+and it follows by the cycle property that $E_2$ cannot be in the MST, but adding $E_1$ and removing $E_2$ from $T_2$ creates a cheaper MST than $T_2$ which is a contradiction.
+
+
+
+\item The edge with the smallest weight $e_{min}$ always belongs to the MST. \\ \\ 
+\textbf{True}: 
+Consider any cut of a graph with $e_{min}$ having its vertices in two different sets. Since $e_{min}$ is the smallest weighted edge, it must be the smallest weighted edge of those that span the two subsets, and it follows by the cut property that it must be in the MST. \\ \\
+
+\item The edge with the largest weight $e_{max}$ never belongs to the MST. \\
+\textbf{False}: Consider a graph with nodes $\{1, 2\}$ and edge $E_{12} = 1$ \\ \\
+$E_{12}$ is the maximal weighted edge, but the only mst of the graph contains the edge (only way to connect 1 and 2), hence a contradiction.
+\end{enumerate}
+
+
+
+\newproblem{Programming: An Escape from time}{30}
+Hackerrank Id: \textbf{neelbhallabos} .  Done with Agnes Shan and Sammuel Lyon too.
+\end{document}

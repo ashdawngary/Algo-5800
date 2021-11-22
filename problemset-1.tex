@@ -1,0 +1,275 @@
+\documentclass[11pt, a4paper]{article}
+
+% One of the following is required: problemset, recitation, quiz, exam
+% The following are required: handoutnum, assigneddate.
+% If there is only one date, set both duedate and assigneddate to be the same.
+% Do not change handoutnum or dates
+\usepackage[
+problemset,
+handoutnum=1,
+assigneddate={10 September 2021},duedate={17 September 2021},
+% % Uncomment the line below IF these are solutions
+solution,
+% % Uncomment the line below IF you are a student submitting solutions
+student,
+% % Replace with your name
+name={Neel Bhalla},
+% Replace with names of all group members who collarborated on this.
+% If unsure about ordering, then you can follow the convention in theory
+% and list names alphabetically by last name.
+groupmembers={Neel Bhalla, Sam Lyon, Agnes Shan}
+]{course-handouts-preamble}
+% Be careful of commas and put text with spaces within {curly braces}
+% Shouldn't end in a comma, should have commas between options.
+% Weird errors occur otherwise, I wasted some time failing to debug those.
+
+% DO NOT EDIT
+% These are fixed values that should not be changed during this course.
+\pgfkeys{/chp/fixed/.cd,
+instructorname = {Ravi Sundaram},
+coursename = {CS5800 Algorithms}}
+
+
+% Add any macros you want below, or put them in a separate file and \input{file}
+% keeping the preamble clean can keep you sane.
+
+%
+\begin{document}
+\insertHandoutInfoBox{}
+\ifbool{isexam}{\input{exam-blurb}} %This shouldn't throw an error, but comment it out if it does throw an error.
+% Do not touch either of the above lines.
+
+% Start adding content from below here.
+
+\newproblem{Asymptotics}{20}
+\begin{enumerate}
+\item
+  Return a list of the following functions separated by the symbol $\equiv$ or
+  $\ll$, where $f\equiv g$ means $f=\Theta(g)$ and $f\ll g$ means
+  $f=O(g)$. For example, if
+  the functions are $\log n,n,5n,2^{n}$ a correct answer is $\log n\ll n\equiv5n\ll2^{n}$.
+  All logarithms are in base $2$. Prove each relation formally (the adjacent ones in the ordering you come up with).
+  \begin{enumerate}
+    \begin{multicols}{2}
+    \item $1/n$
+    \item $n\log n$
+    \item $\log n!$
+    \item $n^{1/\log n}$
+    \item $\log^{2}n$
+    \item $\log^{2}(n\log n)$
+    \end{multicols}
+  \end{enumerate}
+  \textbf{Solution}: $\frac{1}{n} \ll n^{\frac{1}{\log{n}}} \ll \log^2{n} \equiv \log^2(n\log{n}) \ll n \log n \equiv \log n!$ \\ \\
+  \textbf{Claim 1}: $\frac{1}{n} \ll n^{\frac{1}{\log{n}}}$. \\ 
+  We can rewrite $\frac{1}{n}$ as $n^{-1}$.  Next observe for $n > 1$, $\boxed{n^k > n^j \iff k>j}$. \\  Finally for $n > 1$, $\log n > 0 $, $\frac{1}{\log n} > 0 > -1$, hence $\frac{1}{\log n} > -1$ for $n > 1$.   \\
+  Since the bases are the same (n), it follows that $\boxed{n^{-1} < n^{\frac{1}{\log n}}}$ for $n > 1$. \\ \\
+  \textbf{Claim 2}: $\frac{1}{n} \neq \Omega(n^\frac{1}{n \log n}) $ \\ \\
+  Lets assume that $\frac{1}{n} = \Omega(n^{\frac{1}{\log n}})$ \\
+  Then $\frac{1}{n} \geq c * n^{\frac{1}{\log n}}$ for some value of c for large enough n.We can take the log of both sides: $$-\frac{\log{n}}{c} \geq \frac{\log n}{\log n} = 1$$ 
+  But $\frac{\log{n}}{c}$ is positive, thus $-\frac{\log{n}}{c} < 0$ and the above finding is a contradiction, hence $\frac{1}{n} \neq \Omega(n^\frac{1}{n \log n}) $
+ 
+  \textbf{Claim 3}: $n^{\frac{1}{\log{n}}} \ll \log^2{n}$ \\
+  Given $n^{\frac{1}{\log n}}$, we can take the log of it which is $\frac{1}{\log n}* \log n = 1$ (constant), hence  $n^{\frac{1}{\log n}}$ is a constant function with value the base of the log($a$). \\ \\
+  Observe that $\log n$ is a striclty increasing and positive function for $n > 1$.  therefore squaring it will produce another strictly increasing and positive function, $\log^2 n$.  \\ \\ 
+  Let the log base be $a$.  If we consider $n = a^{\sqrt{a}}$, a positive number, the two functions have the same value.  Since the first is constant, and the second one is strictly increasing, it follows for $n > a^{\sqrt{a}}$, $n^{\frac{1}{\log{n}}} < \log^2{n}$, hence
+  $n^{\frac{1}{\log{n}}} \ll \log^2{n}$ \\ \\
+  \textbf{Claim 4}: $n^{\frac{1}{\log n}} \neq \Omega(\log^2{n})$ \\ 
+  Let us assume that it is correct, namely $n^{\frac{1}{\log n}} > c\log^2{n}$ for some value of n. \\ \\
+  We can log both sides yielding
+  $$\frac{\log n}{\log n} = 1 > \log c + \log( \log^2(n) )$$
+  But since $ \log( \log^2(n) )$ is increasing, there must be some point where it breaks 1.  $$1 < \log(\log^2(n)) + \log(c)$$
+  $$a < c\log(n)^2$$ $$ \sqrt{a} < \sqrt{c}\log n$$ $$a^{\sqrt{\frac{a}{c}}} < n$$ 
+  Hence for any $c$, there all $n > a^{\sqrt{\frac{a}{c}}}$ will result in $c\log^2 n$ being larger than $n^{\frac{1}{\log n}}$. \\ \\ 
+  Therefore  $n^{\frac{1}{\log n}} \neq \Omega(\log^2{n})$ \\ 
+  \textbf{Claim 5}: $\log^2{n} \equiv \log^2(n\log{n})$ \\ 
+  Recall that $\log^2 n$ is strictly increasing and positive for large $n$. \\ \\ Next observe that $1 < \log n$ for large enough n, thus $n < n \log n$ for large $n$.   \\ \\
+  Combining these two facts, it follows that for sufficiently large n, $\log^2{n} < \log^2(n\log{n})$ \\ \\
+  \textbf{SubClaim 5.2}: $\log^2(n\log{n}) = O(\log^2{n})$ \\ 
+  Observe $\log^2(n \log n) = (\log n + \log \log n)^2 = \log^2 n + 2(\log n * \log\log n) + (\log\log n)^2$. \\ \\
+  It is sufficent to show that $\log\log n = O(\log n)$. \\
+  Recall for $n > 1$, log is striclty positive and increasing.  Next observe that for large $n$, $\log n < n$.  \\ \\
+  Combining these two facts, $\log (\log n) < \log (n)$, hence $\log \log n = O(\log n)$ \\ \\
+  Therefore $$\log^2(n \log n) =  \log^2 n + 2(\log n * \log\log n) + (\log\log n)^2$$
+  $$ \leq \log^2 n + 2(\log n * c\log n) + (\log n)^2$$
+  $$ \leq \log^2 + 2c\log^2 n + \log^2 n$$
+  $$\leq (2+c)\log^2 n$$
+  and it follows that $\log^2(n\log{n}) = O(\log^2{n})$ and $\log^2(n\log{n}) = \Theta(\log^2 n)$ \\ \\
+  \textbf{Claim 4}: $\log^2(n\log{n}) \ll n \log n$\\
+  \textbf{Transitivity}. Observe in claim 3, we showed,   $\log^2(n\log{n}) = O(\log^2 n)$, hence it is sufficient to show $\log^2 n = O(n \log n)$. \\ \\
+  This upper bound can be constructed.  First observe that $\log n < n$ for $n > 1$.  Secondly we can multiply by $\log n$, which is positive for $n > 1$, hence $\log^2 n < n \log n$ for $n > 1$, and $\log^2 n = O(n \log n)$.  \\ \\
+  It follows by transitivity that $\log^2(n\log{n}) = O(n \log n)$ \\ \\
+  
+  \textbf{Claim 5}: $\log^2(n\log{n}) \neq \Omega(n \log n)$ \\ \\
+  
+  Prove via $\log^2(n \log n) = o(n \log n)$ \\ \\
+  
+  Observe that $\log(x) \leq \sqrt{x}$ for $x > 1$.
+  
+  Justification: if we differentiate both sides we get $\frac{1}{x} \leq \frac{1}{2\sqrt{x}}$.  Since $\sqrt{x} < x$, it follows that $\frac{1}{x} < \frac{1}{2\sqrt{x}}$. for $x > 1$. \\ \\
+  Since $\log(1) = 0$ and $\sqrt{1} = 1$, it follows that for $x > 1$, $\log{x} \leq \sqrt{x}$. \\ \\
+  Next we can square both sides, yielding $$\log^2 x \leq x$$ \\ \\
+  Finally we can transform $x = n \log n$ (doesnt affect the inequality, yielding 
+  $$\log^2 (n \log n) \leq n \log n$$ for $x > 1$ or $n > \frac{1}{\log{n}}$ (which can be bounded to $n > 2$). \\ \\
+  Since  $\log^2(n \log n) = o(n \log n)$, $\log^2(n\log{n}) \neq \Omega(n \log n)$
+  \\ 
+  \\ 
+  \textbf{Claim 6}: $n \log n \equiv \log n!$ \\ \\
+  It is sufficent to show $\log n! \equiv n \log n$ as $f(n) = \Theta(g(n)) \iff g = \Theta(f(n))$ \\ \\
+  We first can show that $\log n! = O( n \log n)$ \\ \\
+  Observe that $\log n! = \sum_{i = 1}^n \log i$ by log rules. \\ \\ 
+  Since $\log$ is increasing and positive, and $i \leq n$, it follows that 
+  $$\log n! = \sum_{i = 1}^n \log i \leq \sum_{i = 1}^n \log n$$
+  $$\leq \log n \sum_{i=1}^n 1$$
+  $$\leq n \log n$$
+  Next, we can show that $\log n!  = \Omega(n \log n)$ \\ \\
+  Observe how $\sum_{i = 1}^n \log i \leq \sum_{i = \frac{n}{2}}^n \log i$.
+ Since each term is at least $\frac{n}{2}$, this sum is bounded below by $\log \frac{n}{2}$ 
+ $$\geq \sum_{i = \frac{n}{2}}^n \log \frac{n}{2}$$
+ $$\geq \frac{n}{2}\log \frac{n}{2}$$
+ $$\geq \frac{n}{2}(\log{n} - \log{2})$$
+ $$\geq \frac{1}{2}(n\log n - n\log{2})$$
+ But observe  $\log{2} \leq \frac{1}{4}\log n$ as log is increasing and the $\log{2}$ is not and the inequality holds for $n \geq 16$. \\  Therefore for $n \geq 16$, $\log(2) n \leq \frac{1}{4} n \log n$, thus
+ $$\geq \frac{1}{2}(n \log n - \frac{1}{4} n \log n)$$
+ $$\geq \frac{3}{8}(n \log n)$$
+ $$= \Omega(n \log n)$$
+\item
+  For some given functions, $f,g,h$, decide which of the following statements is correct and give a formal proof.
+  \begin{enumerate}
+  \item If $f(n) = O(g(n))$, then $f(n) = O(\log g(n))$ \\ 
+  \textbf{False}.  Consider f = g = $x$.  Since $f = g$, $f = O(g) = O(x)$, but $f \neq O(\log x)$ as $\log x  = o(x)$.  \\ 
+  \textbf{Proof}: For $x = 1$, $\log{x} = 0 \geq 3*x$ \\ \\
+  Observe for $n \geq 1$, $x$ grows faster than $\log{x}$ as the first derivate is 1 and $\log{x}$ has derivative $\frac{1}{x} < 1$ for all $x > 1$, hence $\log{x} = o(x)$. \\ 
+  \item
+    If $f(n) = \Theta (g(n))$, then $(f(n)^2) = \Theta (g(n)^3)$ \\ \\
+    \textbf{False}.  Consider $f = g = x$. $f^2 = x^2$ and $g^3 = x^3$.  While $x^2 = O(x^3)$ (since $x^2 < x^3$ for large enough n), there is no value of $c$ such that $x^2 > cx^3$ for large enough n.  \\ \\
+    This is becuase for postitive of c, $$x^2 \leq cx^3 \iff 1 \leq cx  \iff \frac{1}{c} \leq x$$ hence $x^2 \neq \Omega(x^3)$
+  \item
+    If $f(n) = \Omega(n*g(n))$, $g(n) = \Omega(n*h(n))$, then $f(n) = \Omega (n^2*h(n))$ \\ 
+    \textbf{True}.  If $f(n) = \Omega(n*g(n))$, there exists a value $c_0$ such that $f(n) \geq c_0*n*g(n)$ for large enough $n$.  Simmilarily if  $g(n) = \Omega(n*h(n))$, there exists $c_1$ such that $g(n) \geq c_1*n*h(n)$. \\ \\
+    Putting it together, we get 
+    $$f(n) \geq c_0*n*g(n)$$
+    $$\geq c_0c_1*n^2*h(n)$$
+    and since $c_0c_1$ is another constant: 
+    $$= \Omega(n^2*h(n))$$
+  \end{enumerate}
+\end{enumerate}
+
+% \begin{solution}
+%   Uncomment the begin and end lines. Then add your solution in here. Copy paste for the other problems.
+% \end{solution}
+
+
+\newproblem{Induction}{10+15}
+\begin{enumerate}
+\item Let $q$ be a real number other than 1. Use induction on $n$ to prove that $\sum_{i=0}^{n-1} q^i = (q^n-1)/(q-1)$ \\
+\textbf{Base Case}: \\
+$n = 0$, 0 = $\frac{1-1}{q-1} = 0$ \\ 
+$n = 1$, $q^0 = 1 = \frac{q-1}{q-1} = 1$ \\
+Let us assume that the formula works for $n = k$, it suffices to demonstrate it must hold for $n = k+1$ \\ \\
+The sum becomes $$\sum_{i=0}^{k} q^i = \sum_{i=0}^{k-1} q^i + q^k$$
+We then invoke the inductive hypothesis on $n = k$ to substitute the summation yielding:
+$$= \frac{q^k - 1}{q -1} + q^k$$
+$$= \frac{q^k - 1 + q^{k+1} - q^k}{q-1}$$
+$$= \frac{q^{k+1} - 1}{q-1}$$
+as intended.
+\item Show that any value of 12 cents or more can be attained using some arbitrary amount of 4 and 5 cent denomination coins (this problem is an example of strong induction). \\
+\textbf{Base Case}: We can construct values 12-15 manually. \\ 
+12: $4 * 3$ \\ 
+13: $4*2 + 5*1$ \\ 
+14: $4*1 + 5*2$ \\ 
+15: $4*0 + 5*3$ \\ 
+\textbf{Inductive step}.  \\ Assume that all values $12 \leq x \leq k$ have a valid combination.  Prove that $k+1 \geq 16$ must also have a valid combination. \\
+Since $k+1 \geq 16$, $k + 1 - 4 \geq 12$.  Since $12 \leq k+1-4 \leq k$, it follows that $k+1-4$ must have a valid combination. \\ \\
+We can construct a valid combination of value $k+1$ by taking the prior combination and adding a 4-cent coin.  Therefore $k+1$ has a valid combination. \\ \\
+It follows the formula holds for all $n \geq 12$
+
+\end{enumerate}
+
+
+\newproblem{Modular Arithmetic}{25}
+We are going to prove Fermat's Little Theorem.
+\begin{enumerate}
+\item Let $p$ be a prime. Show that for any integer $x$ not divisible by $p$, $x^{p-1} \equiv 1 \text{ mod } p$. Hint: Consider the sequence $x, 2x, ..., (p-1)x$. \\ \\
+Consider the aformentioned sequence.  We can take the sequence mod $p$ and the multiply them together. \\ \\
+\textbf{Claim}: $x, 2x, ..., (p-1)x$ is a permutation of $1, 2, 3 , \ldots, p-1$ \\ \\
+\textbf{Proof}: Consider two elements $c$ ($kx+q$), $d$ ($rx+q$) with the same modulus, namely $c \text{ mod } p \equiv d \text{ mod } p$ \\ \\
+It then follows that $$c -d = kx+q - (rx+q) = kx-rx = bp$$ for integer b.
+Simplifying yields:
+$$(k-r)x = bp$$
+Observe that since $p$ is prime and $x$ is not divisible by $p$, $x$ and $p$ are coprime and $gcd(x,p)$ = 1.  Therefore $p$ must divide $k-r$ and the two multiple with the same modulus must be a multiple of $p$ apart(on the list of multiples). \\ \\
+Since the proof above works for every modulus from 0 to $p$, it follows that $0, x, 2x, 3x, \ldots, (p-1)x$ must be a permutation of $0, 1, 2, \ldots, p-1$ \\ \\
+Next observe that we omit $0$ and $0 \text{ mod } p \equiv 0$, hence the modulus-es of $x, 2x, 3x, \ldots, (p-1)x$ is $1, 2, \ldots, p-1$. \\ \\
+\textbf{Proof of Theorem}. 
+$$\prod_{k = 1}^{p-1} kx \equiv \prod_{k=1}^{p-1} k \text{ mod } p$$
+The left hand side can be rearranged into $(p-1)!x^{p-1}$ and the right hand side is $(p-1)! \text{ mod } p$
+$$(p-1)!x^{p-1} \equiv (p-1)! \text{ mod } p$$
+Finally it suffices to divide by $(p-1)!$ yielding
+$$x^{p-1} \equiv 1 \text{ mod } p$$
+\end{enumerate}
+
+
+
+\newproblem{Programming: modular-exponentiation}{30}
+
+The Hackerrank link will be posted on Canvas. In addition to the below description, it also contains more formal requirements for how your program should behave.
+
+\noindent{\bf Description:} Implement modular  exponentiation in a way
+that outputs the intermediary steps of the algorithm.
+
+\noindent{\bf Problem Statement:} \textcolor{blue}{**IMPORTANT**} You are NOT allowed to use built in language functions which trivialize the task of computing exponents. Any submissions which use this and avoid the task at hand will be given a 0.
+
+In this problem, you will have to efficiently implement modular exponentiation. Recall that the problem of modular-exponentiation is, given positive integers $a$ and $n$, and a non-negative integer $x$, calculate $a^x\mod n$.
+
+One way of doing this is exponentiation by squaring. It involves repeatedly squaring the base $a$ and reducing it using modulus: $a^2 \mod n$. Doing so yields the values $a$, $a^2\mod n$, $a^4\mod n$, $a^8\mod n, \dots$, etc. By combining these in the correct way, and using the fact that every number has a binary representation, we can compute $a^x\mod n$ in time $O(\log x)$.
+
+Implement modular-exponentiation by squaring, and output the intermediary values of $a^{2^i}\mod n$, as well as the final value $a^x\mod n$.
+
+Note that in addition to the  above, the challenge page also describes
+the input/output format, and gives a few examples. While some of it is reproduced here, the hackerrank version is authoritative.
+
+\textbf{Input Format}: The input will be exactly one line, with three space delimited integers $a$, $x$, and $n$.
+
+\textbf{Constraints}: The integers will satisfy $2 \leq a, x, n \leq 2^{64}$.
+
+\textbf{Output Format}: On the first line, output the $d$-bit binary representation of $x$.
+
+On the next $d$ lines, output the values:
+
+$a^1 \mod n$,
+
+$a^2 \mod n$,
+
+$a^4 \mod n$,
+
+\vdots
+
+$a^{2^d} \mod n$,
+
+On the last line, output $a^x \mod n$
+
+\textbf{Sample Input}:
+3 7 10
+
+Sample Output:
+111
+
+3
+
+9
+
+1
+
+7
+
+\textbf{Explanation}:
+7 in binary is written as 111.
+
+\begin{align*}
+3^1 = 3 \mod 10
+3^2 = 9 \mod 10
+3^4 = 81 = 1 \mod 10
+3^7 = 2187 = 7 \mod 10
+\end{align*}
+
+
+\end{document}

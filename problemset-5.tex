@@ -1,0 +1,127 @@
+\documentclass[11pt, a4paper]{article}
+
+% One of the following is required: problemset, recitation, quiz, exam
+% The following are required: handoutnum, assigneddate.
+% If there is only one date, set both duedate and assigneddate to be the same.
+% Do not change handoutnum or dates
+\usepackage[
+problemset,
+handoutnum=5,
+assigneddate={9 November 2021},duedate={19 November 2021},
+% % Uncomment the line below IF these are solutions
+% solution,
+% % Uncomment the line below IF you are a student submitting solutions
+% student,
+% % Replace with your name
+name={Fill Submitter's Name},
+% Replace with names of all group members who collarborated on this.
+% If unsure about ordering, then you can follow the convention in theory
+% and list names alphabetically by last name.
+groupmembers={Fill collaborators' names}
+]{course-handouts-preamble}
+
+% Be careful of commas and put text with spaces within {curly braces}
+% Don't use a comma at the end, but do use commas between options.
+% Weird errors occur otherwise, I wasted some time failing to debug those.
+% DO NOT EDIT
+% These are fixed values that should not be changed during this course.
+\pgfkeys{/chp/fixed/.cd,
+instructorname = {Ravi Sundaram},
+coursename = {CS5800 Algorithms}}
+
+% Add any macros you want below, or put them in a separate file and \input{file}
+% keeping the preamble clean can keep you sane.
+
+\begin{document}
+% Do not change either of the below lines.
+\insertHandoutInfoBox{}
+\ifbool{isexam}{\input{exam-blurb}} %comment this line only if it throws an error.
+
+% Start adding content from below here.
+
+
+\newproblem{Execute Edmonds-Karp}{10}
+The Edmonds-Karp algorithm uses the idea of augmenting paths similar to the Ford-Fulkerson algorithm but it chooses the next augmenting path by picking the shortest path from $s$ to $t$ in the residual graph. It is known that this manner of choosing the augmenting path results in an algorithm that always terminates which may not be the case with the Ford-Fulkerson algorithm if there are irrational weights.
+Compute the maximum flow of the following two flow network using the Edmonds-Karp algorithm,
+where the source is $S$ and the sink is $T$.  Show the residual network after each flow augmentation.  Write down the maximum flow value.
+
+\begin{figure}[H]
+  \centering
+  \input{files/10142-1-tikz-graph}
+  \caption{Network $\mathcal{N}$}
+  \label{fig:flow-network-to-execute-Edmonds-Karp-on}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \input{files/step1}
+  \caption{Pushed 4 units along $S \to A \to D \to T$}
+  \label{fig:flow-network-to-execute-Edmonds-Karp-on}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \input{files/step2}
+  \caption{Pushed 4 units along $S \to B \to C \to E \to T$}
+  \label{fig:flow-network-to-execute-Edmonds-Karp-on}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \input{files/step3}
+  \caption{Pushed 2 units along $S \to B \to C \to D \to A \to E \to T$}
+  \label{fig:flow-network-to-execute-Edmonds-Karp-on}
+\end{figure}
+
+The maximum flow value is \boxed{10}.
+
+
+\newproblem{Augmenting Path \textit{Edge} Cases}{(10+10)+20}
+All of the following problems delve into the specific information that can be gleaned from augmenting paths.
+\begin{enumerate}[label=\alph*.]
+
+\item You are given a directed graph $G$ with $n$ nodes and $m$ edges, a source $s$, a sink $t$ and a maximum flow
+$f$ from $s$ to $t$. Assume that the capacity of every edge is a positive integer. Describe an $O(n+m)$ time algorithm for updating the flow $f$ in each of the following two cases.
+\begin{enumerate}
+\item The capacity of an edge e increases by $1$. \\ 
+Since the capacity of a single edge increased by 1, and time we push flow guarantees $1$ flow unit progress, it suffices to run an iteration of augmenting path after increasing capacity of  the edge(forward direction) in the residual graph.  This is done with BFS to look for a path in the residual graph from s to t.  Since we had a max flow prior, there will only be a path from s $\to $ t in the residual iff such path contains $e$. Should there exist a path, the new maxflow is $f+1$, otherwise it remains at $f$. (Stronger Claim , the max flow can only increase by maximum 1 and cannot decrease).
+\item The capacity of an edge e decreases by $1$. (\textit{Hint: decrease the flow from $s$ to $t$ through $e$ by $1$, then run one iteration of augmenting path.}) \\ 
+\textbf{Claim}: the maxflow cannot decrease by more than 1. \\ \\ \textbf{Proof}: Either $e$ is on the min-cut or it is not on the min cut.  If it is on the min cut, then decreasing such edge will decrease the min cut, hence by mincut-maxflow thrm, the max flow must decrease by exactly 1.  If it is not a min cut, then decreasing it will have no effect on the min cut. \\ \\
+As a result, it suffices to pick any nonzero flow path between $s \to t$ via e, and decrease all of them by 1.  Finally by our proven claim above, either we can push 1 flow in the graph (augment path), or indeed $e$ was on the min cut, and no flow can be pushed. 
+\end{enumerate}
+
+\item Let $G = (V,E)$ be a flow network with source $s$ and sink $t$. We say that an edge $e$ is a bottleneck if it crosses every minimum-capacity cut separating $s$ from $t$. Give an efficient algorithm to determine if a given edge $e$ is a bottleneck in $G$.\\ \\ 
+Let $S$ bet the set of min cuts.  If e is the bottle neck edge, then the mincut val of each cut in $S$ will increase by 1. Simiarily lets say there exists a cut $s \in S$ such that $e \not \in s$.  Increasing $e$ by 1 will not increase the value of cut $s$, hence the mincut value will remain the same. \\ \\ \\
+This motivates the algorithm as follows.  Given the graph G, we compute the mincut of $G$.  Using an algorithm like ford fulkerson, we can obtain the analgous flow for this min cut.  Next we increase the edge $e$ by 1,and utilizing the algorithm in \textbf{2a}, we can find the new maxflow of the graph with $e$ capcity augmented.  By maxflow-mincut thrm, this is also the value of the mincut, thus it suffices to compare it to our original mincut value.  If it has increased, $e$ was indeed a bottleneck edge, else it is not a bottleneck edge. 
+
+\end{enumerate}
+
+
+\newproblem{Orwellian viruses}{25}
+
+One of the computers in a lab in the university has been infected with an Orwellian virus which makes the computer believe that $2 + 2 = 5$. We need to stop the spread of this virus before the very foundations of mathematics are destroyed! All the other computers are doing \emph{very important work} so we do not want any of them switched off unless unavoidable. The computers are also connected (in a known configuration) to each other via LAN cables so that they can help each other. Thankfully the lab is isolated and there is just one computer (named Shangri-La) which is actually connected to the internet. Our job is to stop the virus before it reaches Shangri-La.
+
+We have two methods we can use while trying to stop the virus. The first is to shut down computers other than the infected one and Shangri-La. But we'll need to save the \emph{very important work} they're doing. The other method is to physically cut the LAN cables. But only some of the cables are actually visible, the rest are all hidden inside walls. Both saving the work on a computer and cutting a LAN cable take the same time and we don't care how many of each method is chosen. We want to finish disconnecting Shangri-La from the infected computer as quickly as possible.
+
+We come to you for help. We'll tell you which computers are connected to which, and we'll tell you which LAN cables are visible and can be cut. As someone who has mastered algorithms, help us save the foundations of mathematics. That is, come up with an efficient algorithm such that the sum of the number of computers shutdown and LAN cables cut is minimized. We'll need proof that the algorithm works and that it works fast before remodeling the lab accordingly so make sure to provide proof of correctness and analyze the running time. \\ \\
+\textbf{Problem Transformation}: Let us construct an analogous graph.  For each node (except for the original computer and Shangri-la), we replace the node  n with two nodes $n_1$, $n_2$, and an edge between the two with weight 1.  Next we consider LAN cables that connect such nodes.  If $(u,v)$ are connected via a cuttable LAN cable, it suffices to put a unit weight edge between $u_2 \to v_1$.  If the cable is not cuttable, we place a infinite weighted edge between $u_2 \to v_1$  \\ \\ \\ \\
+Observe each edge in the graph represents a possibly removable connection between two entities. If it is within orignial nodes, it represents the virus going through the computer, whereas if it is between nodes, it represents  LAN cables. Since we can shut down every computer between the soruce and dest, The minimum cut of the grpah must be finite. Since all finite edges have the same weight, it suffices to find the minimum number of edges that disconnect our source from Shangri-La, which by \textit{Menger's Theorem} is equivalent to finding the minimum number of distinct edge paths in the graph, which is equivalent to the minimum cut of the graph. \\ \\
+It suffices to run ford fulkerson on the graph constructed which will run in O(n*m).  This is because maxflow of the graph (which is equivalent to mincut by maxflow-mincut), is bounded above by $n$, the number of nodes in the graph.  
+
+
+
+
+\newproblem{Advertising}{25}
+
+Major online portals like Google and Facebook have considerable information about individual users based on their past interactions. This allows them to post targeted advertisements to the users. Suppose a set $U$ of $n$ users, labeled $1$ through $n$, visit the portal on a particular day. The portal has a set $A$ of $m$ ads, labeled $1$ through $m$, to choose from. The analysis of the users has revealed $k$ different groups (from a marketing standpoint), the $i$th group consisting of subset $S_i$ of users from $U$. A user may be part of several groups; i.e., a user may be an element of several different $S_i$'s. The $j$th ad belongs to a subset $G_j \subseteq \{1, \ldots, k\}$ of the groups. Each ad $j$ also has an integer rate criteria $r_j$ based on what companies pay to have that ad shown.
+
+The portal needs to decide whether there exists a way of assigning advertisements to users such that the following conditions hold: (a) each user is shown exactly one ad; (b) ad $j$ is shown to user $i$ only if $i \in S_k$ for some $k\in G_j$, that is, user $i$ must be part of a group which contains ad $j$; (c) the number of times the ad $j$ is shown is exactly $r_j$, where $r_j$ is a given integer.
+
+Give a polynomial-time algorithm that takes the above input: $U$, $A$, the sets $S_i$'s, the groups $G_j$'s, the $r_j$'s --- and determines whether the portal can assign an ad to each user so that the above three conditions are satisfied, and if so, then returns such an assignment. State the running time of your algorithm.
+
+\textbf{Graph Construct}: We start the construction by adding nodes $s$ and $t$.  Next we introduce the concept of "user" nodes, that are connect $s$ $\to u_i$ with a unit edge.  This edge represents the add that the user will watch (flow capacity).  Since every user needs to be shown exactly 1 add, a capacity of one is imposed, and our final flow solution will need each of these edges saturated.  \\ \\
+Next we introduce a layer of Group nodes, that reprsent the number of ads available to watch per group. For each pair $(u,v)$, user $u$, group $v$, we draw an unbounded edge $(u,v,\infty)$ in the graph.  This is becuase the flow is bounded by 1 into the student, but there are no constraints on how many ads per group a user can view. \\ \\
+Next we introduce the ads themselves as nodes.  For each ($r$,$j$), group $r$, ad $j$.  If ad $j$ is a part of group $r$, then we add ($r$,$j$,$\infty$) to the graph.  This represents the amount of specific ad-views generated from the users in a group $r$.  There are no constraints on this value by itself, so it has cap $\infty$. Finally we connect the ads to the final node, which needs to be exactly $r_j$ for every ad $j$.  This constraint means that we need to add an edge $(j, t, r_j)$, to bound $0 \leq ad_j \leq r_j$. \\ \\
+It suffices to find the maxflow of this graph.  If all the constraints are met, the edges at the end, representing the ad capacities will be saturated, in order to satisfy equality.  \\ \\ 
+\textbf{Runtime and Solution Synthesis}: If the edges are indeed saturated, then the maxflow will be the number of users $n$. \\ \\
+The number of nodes is $n + m + k + 2$, and there are $n + n*m + m*k$ edges in the graph.  As a result, running ford fulkerson will take $O(n(n + nm + mk))$ time.  Once we get an assignment, the actual paths can be reconstructed in linear time of the number of users $n$, by stripping paths of the flow solution.
+
+\end{document}
